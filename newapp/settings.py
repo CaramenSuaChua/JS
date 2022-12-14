@@ -136,22 +136,18 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
+    # 'EXCEPTION_HANDLER': 'accounts.exceptions.core_exception_handler',
+    # 'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': ( 
-        # 'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAdminUser',
         # 'rest_framework.permissions.AllowAny',
-        'rest_framework.permissions.IsAuthenticated'
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 1,
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework_simplejwt.tokens.Token'
-    #     # 'rest_framework.authentication.BasicAuthentication',
-    #     # 'rest_framework.authentication.SessionAuthentication',
-
-    # ]
+   
 }
 
 from datetime import timedelta
