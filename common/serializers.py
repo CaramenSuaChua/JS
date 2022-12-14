@@ -4,7 +4,7 @@ from rest_framework import exceptions,serializers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from .authentication import create_access_token
 # Register Serializer
 class RegisterSerializer(serializers.ModelSerializer):
     # password = serializers.CharField(max_length = 50)
@@ -28,43 +28,46 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 # Login Serializer
-class LoginSerializer(TokenObtainPairSerializer):
+class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length = 100)
     username = serializers.CharField(max_length=100, )
     password = serializers.CharField(max_length=100, )
-    token = serializers.SerializerMethodField()
 
-    def get_token(cls, user):
-        token = super(LoginSerializer, cls).get_token(user)
+    def get_token(self, obj):
+        user = User.objects.get(username=obj.username)
 
-        # Add custom claims
-        return token
-    
+        return {'refresh': user.tokens['refresh'],
+        'access': user.tokens['access']}
+        
     class Meta:
         model = User
-        fields = (
-            'email', 'username', 'password', 'token', 
+        fields = ( 'username' 'password', 
         )
     
     def validate(self, data):
-        email = data.get('email', )
-        password = data.get('password', )
-        if email is None:
-            raise serializers.ValidationError('Email is required ')
+        username = data.get('username', None)
+        password = data.get('password', None)
+        email = data.get('email', None)
+        
+        if username is None:
+            raise serializers.ValidationError('username is required ')
         
         if password is None:
             raise serializers.ValidationError('password is require')
-        
-        user = authenticate(email = email, password = password)
+        user = authenticate(request=self.context.get('request'), username=username, password=password, email=email)
+        # access_token = create_access_token(user.id)     
+        # user.save(access_token)  
         if not user:
             return Response({"error": True, "errors": "user not avaliable in our records"})
         if not user.check_password(password):
             return Response({"error": True, "errors": "Email and password doesnot match"})
-
-        return data
+        data['user'] = {
+            'results':user
+        }
+        return user
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(max_length=100)
+    # password = serializers.CharField(max_length=100)
 
     class Meta:
         model = User
@@ -72,9 +75,9 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'username',
             'password',
-            'tokens'
+            'first_name',
+            'last_name',
         )
-        read_only_fields = 'tokens'
 
 #Logout Serializer
 class LogoutSerializer(serializers.ModelSerializer):
