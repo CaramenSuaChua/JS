@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'account',
     'orders',
     'products',
     'knox'
@@ -140,7 +142,11 @@ REST_FRAMEWORK = {
     # 'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
+   
     'DEFAULT_PERMISSION_CLASSES': ( 
         'rest_framework.permissions.IsAdminUser',
         # 'rest_framework.permissions.AllowAny',

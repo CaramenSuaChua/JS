@@ -1,49 +1,47 @@
 from django.shortcuts import render
 from .models import Order
 from django.http import HttpResponse
-# from rest_framework.response import Response
+from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.views import APIView, Response
-from .serializers import OrderSerializer, OrderDetailSerializer
+from rest_framework.views import APIView
+from .serializers import OrderSerializer
 # Create your views here.
-from products.pagination import CustomPagination, CustomPaginationLimit
 
 class OrdersView(APIView):
     model = Order
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs ):
         params = (
             self.request.query_params
             if len(self.request.data) == 0
             else self.request.data
         )
-        
-        serializer = OrderSerializer(data = request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
-        list_order = serializer.get_orders(serializer.data)
-        return Response(data=list_order, status=200)
+        if not params.get('id'):
+            order = Order.objects.all()
+            order_obj = OrderSerializer(order, many=True).data
+            return Response({
+                'results': order_obj
+            })
+        else :
+            order = Order.objects.get(id = params.get('id'))
+            order_obj = OrderSerializer(order).data
+            return Response({
+                'results': order_obj
+            })
         
     def post(self, request):
-        data = (
+        params = (
             self.request.query_params
             if len(self.request.data) == 0 
             else self.request.data
         )
-        serializer = OrderSerializer(data=request.data)
-
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
-
-        serializer.create_product(serializer.data)
-        return Response("Created success", status=200)
-
-        # if not serializer.is_valid():
-        #     serializer.save()
-        #     return Response({
-        #     'results': serializer.data,
-        #     'message': 'Created Successfully'
-        # }, status=status.HTTP_201_CREATED)
+        order_obj = OrderSerializer(data=params)
+        if order_obj.is_valid():
+            order_obj.save()
+            return Response({
+            'results': order_obj.data,
+            'message': 'Created Successfully'
+        }, status=status.HTTP_201_CREATED)
     
     def put(self, request):
         params = (
@@ -75,14 +73,3 @@ class OrdersView(APIView):
             return Response({
             'message': 'Delete Successfully'
         }, status=status.HTTP_200_OK)
-
-class OrderDetailView(APIView):
-
-    def get(self, request, pk):
-        order = Order.objects.get(id=pk)
-        serializer = OrderDetailSerializer(order)
-        print(serializer.data)
-        # if not serializer.is_valid():
-        #     return Response(serializer.errors, status=400)
-        # order = serializer.get_detail_orders(serializer.data, pk)
-        return Response(serializer.data, status=200)  
