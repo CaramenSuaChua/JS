@@ -1,20 +1,19 @@
-from rest_framework import generics, permissions
 from rest_framework.response import Response
-from rest_framework.request import Request
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, LogoutSerializer
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from django.contrib.auth import login
+# from .models import User
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
-from .authentication import create_access_token
+from .serializers import CreateUserSerializer,MyTokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 # Register API
-from django.contrib.auth import authenticate
-class RegisterView(APIView):
-    permission_classes = (AllowAny, )
 
-    def post(self, request) :
-        serializer = RegisterSerializer(data=request.data)
+class UsersView(APIView):
+    serializer_class = CreateUserSerializer
+    permission_classes = (AllowAny,)
+    def post(self, request):
+        serializer = CreateUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({
@@ -22,31 +21,40 @@ class RegisterView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class LoginView(APIView):
-    permission_classes = [AllowAny,]
+class ObtainTokenPairWithColorView(TokenObtainPairView):
+    permission_classes = (AllowAny,)
+    serializer_class = MyTokenObtainPairSerializer
+   
+    def post(self, request, format=None):
+        params = request.query_params if len(
+            request.data) == 0 else request.data
+        username = params.get("username", None)
+        password = params.get("password", None)
+        print(username, password, '++++++++++++')
+        if not username:
+            return Response({'error': True, 'username': "This field is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not password:
+            return Response({'error': True, 'pass': "This field is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.filter(username=username).first()
+            print(user, '-------------------')
+            if not user:
+                return Response({"error": True, "errors": "username not avaliable in our records"}, status=status.HTTP_400_BAD_REQUEST)
+            if not user.check_password(password): 
+                return Response({"error": True, "errors": "Email and password doesnot match"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        # access_token = create_access_token(user.id)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({
-            'results': serializer.data,
-            
-        }, status=status.HTTP_200_OK)
+            serializer = self.get_serializer(data=request.data)
+            print(serializer, '==============')
+            try:
+                serializer.is_valid(raise_exception=True)
+            except :
+                return Response({"error": True, "errors": "user login not avaliable in our records"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'data': serializer.validated_data,
+            }, status=status.HTTP_200_OK)
+        except: 
+            return Response({"error": True, "errors": "user login failed"}, status=status.HTTP_400_BAD_REQUEST)
 
-class ProfileView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
-
-    def get_object(self):
-        return self.request.user
-    
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated ]
-
-    def post(self, request):
-        serializer = LogoutSerializer(data = request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class DecoratedTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)

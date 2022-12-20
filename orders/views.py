@@ -6,10 +6,10 @@ from rest_framework import status
 from rest_framework.views import APIView, Response
 from .serializers import OrderSerializer, OrderDetailSerializer
 # Create your views here.
-from products.pagination import CustomPagination, CustomPaginationLimit
+from rest_framework.permissions import IsAuthenticated
 
 class OrdersView(APIView):
-    model = Order
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         params = (
