@@ -13,7 +13,7 @@ class OrderView(APIView):
     def get(self, request):
         order = Order.objects.all()
         order_obj = OrderSerializer(order, many=True).data
-        return Response(get_pagination_data(request, order_obj))
+        return Response(request, order_obj)
     
     def post(self, request):
         order = POrderSerializer(data=request.data)
