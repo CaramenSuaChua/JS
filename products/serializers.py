@@ -15,10 +15,24 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class GetProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
+
+    creator = serializers.ReadOnlyField(source='creator.username')
+    creator_id = serializers.ReadOnlyField(source='creator.id')
+    image_url = serializers.ImageField(required=False)
+
     class Meta : 
         model = Products
         fields = (
-           '__all__'
+            'id',
+            'name',
+            'quantity',
+            'price',
+            'description',
+            'availibility',
+            'category',
+            'creator',
+            'creator_id',
+            'image_url'
         )
 
 class ProductSerializer(serializers.ModelSerializer):

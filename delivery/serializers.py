@@ -1,10 +1,11 @@
 from rest_framework import serializers, exceptions
-
+from rest_framework.response import Response
 # import model 
 from .models import Delivery, DeliveryUnit
-
+from rest_framework import pagination
 #import Serializer
 from products.serializers import GetProductSerializer
+
 class DeliveryUnitSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -50,3 +51,18 @@ class PuDeliverySerializer(serializers.ModelSerializer):
         model = Delivery
         fields = ('__all__')
    
+class DeliPagination(serializers.Serializer):
+    page        = serializers.CharField()
+    page_size   = serializers.CharField()
+
+    def get(self, request, data):
+        page = request.data['page'] 
+        page_size = request.data['page_size']
+        start = (int(page) * int(page_size) )
+        end = start + int(page_size)
+
+        return {
+            'page': page,
+            'data': data[start:end],
+            'total': len(data)
+        }

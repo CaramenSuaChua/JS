@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .models import Order, OrderItem
 from products.serializers import ProductSerializer
 from rest_framework.permissions import IsAuthenticated
+from delivery.pagination import get_pagination_data
 # Create your views here.
 class OrderView(APIView):
     serializer_class = POrderSerializer
@@ -12,7 +13,7 @@ class OrderView(APIView):
     def get(self, request):
         order = Order.objects.all()
         order_obj = OrderSerializer(order, many=True).data
-        return Response(order_obj)
+        return Response(get_pagination_data(request, order_obj))
     
     def post(self, request):
         order = POrderSerializer(data=request.data)
@@ -31,7 +32,7 @@ class OrderDetailView(APIView):
     def get(self, request, pk):
         order = Order.objects.get(pk=pk)
         order_obj = OrderSerializer(order).data
-        return Response(order_obj)
+        return Response(request,order_obj)
 
     def put(self, request, pk):
         order = Order.objects.get(pk=pk)

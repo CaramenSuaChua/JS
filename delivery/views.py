@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-
 #import serializer
-from .serializers import DeliveryUnitSerializer,DeliverySerializer,PoDeliverySerializer,PuDeliverySerializer
-
+from .serializers import DeliveryUnitSerializer,DeliverySerializer\
+,PoDeliverySerializer,PuDeliverySerializer
+from .pagination import get_pagination_data
 #import models
 from .models import DeliveryUnit, Delivery
 # Create your views here.
@@ -57,9 +57,9 @@ class DeliveryView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         deli = Delivery.objects.all()
-        deli_obj = DeliverySerializer(deli, many=True).data
+        deli_obj = DeliverySerializer(deli, many=True).data 
         return Response({
-            'data': deli_obj
+            'data':  get_pagination_data(request, deli_obj)
         })
     
     def post(self, request):
