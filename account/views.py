@@ -41,7 +41,7 @@ class ObtainTokenPairWithColorView(TokenObtainPairView):
             if not user:
                 return Response({"error": True, "errors": "username not avaliable in our records"}, status=status.HTTP_400_BAD_REQUEST)
             if not user.check_password(password): 
-                return Response({"error": True, "errors": "Email and password doesnot match"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": True, "errors": "Password doesnot match"}, status=status.HTTP_400_BAD_REQUEST)
 
             serializer = self.get_serializer(data=request.data)
             print(serializer, '==============')

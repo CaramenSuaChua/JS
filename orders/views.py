@@ -32,7 +32,7 @@ class OrderDetailView(APIView):
     def get(self, request, pk):
         order = Order.objects.get(pk=pk)
         order_obj = OrderSerializer(order).data
-        return Response(request,order_obj)
+        return Response(order_obj)
 
     def put(self, request, pk):
         order = Order.objects.get(pk=pk)
@@ -51,7 +51,7 @@ class OrderItemView(APIView):
     serializer_class = POrderItemSerializer
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        item = OrderItem.objects.all()
+        item = OrderItem.objects.all().order_by('-id')
         item_obj  = GetOrderItemSerializer(item, many=True).data
         return Response(item_obj)
 

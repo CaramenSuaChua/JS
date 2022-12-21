@@ -47,6 +47,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
             username = validate_data['username'],
             email= validate_data['email'],
             password= validate_data['password'],
+            first_name = validate_data['first_name'],
+            last_name= validate_data['last_name'],
+            is_active= validate_data['is_active'],
+            is_staff= validate_data['is_staff'],
         )
         user.save()
         return user
