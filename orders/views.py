@@ -25,7 +25,7 @@ class OrderView(APIView):
                 'message': 'Create Success'
             })
         return Response('Failed')
-
+ 
 class OrderDetailView(APIView):
     serializer_class = PurderSerializer
     permission_classes = [IsAuthenticated]

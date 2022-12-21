@@ -19,10 +19,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "password",
-            # 'first_name',
-            # 'last_name',
-            # 'is_active',
-            # 'is_staff'
+            'first_name',
+            'last_name',
+            'is_active',
+            'is_staff'
         )
 
     def __init__(self, *args, **kwargs): 
@@ -30,6 +30,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
         self.fields["username"].required = True
         self.fields["email"].required = True
         self.fields["password"].required = False
+        self.fields["first_name"].required = False
+        self.fields["last_name"].required = False
+        self.fields["is_active"].required = False
+        self.fields["is_staff"].required = False
 
     def validate_email(self, email):
         

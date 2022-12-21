@@ -38,7 +38,7 @@ class DeliveryUnitDetailView(APIView):
         deli_obj = DeliveryUnitSerializer(deli).data
         return Response(deli_obj)
 
-    def post(self, request, pk):
+    def put(self, request, pk):
         deli = DeliveryUnit.objects.get(pk=pk)
         deli_obj = DeliveryUnitSerializer(deli, data=request.data)
         if deli_obj.is_valid():
