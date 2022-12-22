@@ -19,7 +19,7 @@ class Products(models.Model):
     price = models.IntegerField(default=0)
     description = models.TextField(null=True, blank=True)
     availibility = models.BooleanField(default=True, null=False)
-    image_url = models.ImageField(upload_to=upload_to, blank=True, null=True)
+    # image_url = models.ImageField(upload_to=upload_to, blank=True, null=True)
     
     class Meta:
         ordering = ('id', )

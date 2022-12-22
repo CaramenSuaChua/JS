@@ -2,11 +2,13 @@ from rest_framework.response import Response
 # from .models import User
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from .serializers import CreateUserSerializer,MyTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+# from rest_framework_simplejwt.tokens import RefreshToken
+# from .models import Consult
 # Register API
 
 class UsersView(APIView):

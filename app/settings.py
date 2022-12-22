@@ -39,9 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'account',
+    'drf_yasg',
     'products',
     'orders',
-    'delivery'
+    'delivery',
 ]
 
 MIDDLEWARE = [
@@ -139,10 +141,14 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 2,
-    # "PAGE_SIZE": 1,
    
 }
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT : 587
+EMAIL_HOST_USER : os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD : os.environ.get('EMAIL_HOST_PASSWORD')
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),

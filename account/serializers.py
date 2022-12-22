@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers,exceptions
 from rest_framework import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+# from .models import Consult
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -63,8 +63,3 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add custom claims
         return token
 
-# {
-#     "username": "test",
-#     "password": "1",
-#     "email": "test1@gmail.com"
-# }
