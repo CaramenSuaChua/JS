@@ -1,10 +1,11 @@
 # from django.contrib.auth.models import User
 from .models import User
-# from account.models import UserModel
-from rest_framework import serializers,exceptions
-from rest_framework import exceptions
+from rest_framework import serializers, exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import smart_str, force_str, DjangoUnicodeDecodeError,smart_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -57,13 +58,17 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-class EmailVerificationSerializer(serializers.ModelSerializer):
-    otp = serializers.CharField(max_length=555)
-    username = serializers.CharField(max_length=255)
+class EmailVerificationSerializer(serializers.Serializer):
+    otp = serializers.CharField()
+    uidb64 = serializers.CharField( )
+    email = serializers.EmailField( )
+     
 
     class Meta:
-        model = User
-        fields = ['otp', 'username', ]
+        fields = ['otp', 'email' ]
+    
+
+   
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
@@ -101,3 +106,41 @@ class PasswordChangeSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "New_password and Retype_password did not match.")
         return data
+
+class RequestPasswordResetEmailSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(min_length=5)
+
+    class Meta:
+        model = User
+        fields = ['email', ]
+
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        min_length=6, max_length=68, write_only=True)
+    otp = serializers.CharField(
+        min_length=1, write_only=True)
+    uidb64 = serializers.CharField(
+        min_length=1, write_only=True)
+
+    class Meta:
+        fields = ['password', 'otp', 'uidb64']
+
+    def validate(self, attrs):
+        try:
+            password = attrs['password']
+            otp = attrs['otp']
+            uidb64 = attrs['uidb64']
+            id = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(id=id)
+            print(user)
+            if PasswordResetTokenGenerator().check_token(user, otp):
+                raise exceptions.AuthenticationFailed('a The reset link is invalid', 401)
+
+            user.set_password(password)
+            user.save()
+
+            print(user, '+++++++++')
+            return (user)
+        except Exception as e:
+            raise exceptions.AuthenticationFailed('1The reset link is invalid', 401)
+        
